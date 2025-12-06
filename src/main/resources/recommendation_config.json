@@ -1,0 +1,14 @@
+{
+  "genreBoost": {
+    "rock": 1.3,
+    "pop": 1.0,
+    "jazz": 0.9,
+    "electronic": 1.2,
+    "hiphop": 1.15
+  },
+  "recencyWeight": 1.5,
+  "popularityWeight": 1.2,
+  "randomFactor": 0.15,
+  "fallbackLimit": 15
+}
+
