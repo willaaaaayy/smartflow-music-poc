@@ -1,0 +1,164 @@
+{
+  "name": "SmartFlow Config Update Workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours",
+              "hoursInterval": 1
+            }
+          ]
+        }
+      },
+      "id": "schedule-trigger",
+      "name": "Schedule Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [250, 300]
+    },
+    {
+      "parameters": {
+        "url": "http://localhost:8080/api/v1/config",
+        "authentication": "none",
+        "options": {}
+      },
+      "id": "read-current-config",
+      "name": "Read Current Config",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [450, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Логика обновления конфигурации на основе аналитики\nconst currentConfig = $input.item.json;\n\n// Пример: увеличить популярность рока в вечернее время\nconst hour = new Date().getHours();\nif (hour >= 18 && hour <= 23) {\n  currentConfig.genreBoost.rock = 1.5;\n  currentConfig.genreBoost.electronic = 1.3;\n} else {\n  currentConfig.genreBoost.rock = 1.3;\n  currentConfig.genreBoost.electronic = 1.2;\n}\n\nreturn currentConfig;"
+      },
+      "id": "update-config-logic",
+      "name": "Update Config Logic",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [650, 300]
+    },
+    {
+      "parameters": {
+        "url": "http://localhost:8080/api/v1/config",
+        "authentication": "none",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $json }}",
+        "method": "PUT",
+        "options": {}
+      },
+      "id": "update-config-api",
+      "name": "Update Config API",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [850, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "number": [
+            {
+              "value1": "={{ $json.statusCode }}",
+              "operation": "equal",
+              "value2": 200
+            }
+          ]
+        }
+      },
+      "id": "check-success",
+      "name": "Check Success",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [1050, 300]
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "operation": "sendMessage",
+        "chatId": "={{ $env.TELEGRAM_ADMIN_CHAT_ID }}",
+        "text": "✅ Конфигурация рекомендаций обновлена успешно"
+      },
+      "id": "notify-admin",
+      "name": "Notify Admin",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1,
+      "position": [1250, 200],
+      "credentials": {
+        "telegramApi": {
+          "id": "1",
+          "name": "Telegram account"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Read Current Config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Current Config": {
+      "main": [
+        [
+          {
+            "node": "Update Config Logic",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Config Logic": {
+      "main": [
+        [
+          {
+            "node": "Update Config API",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Config API": {
+      "main": [
+        [
+          {
+            "node": "Check Success",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Success": {
+      "main": [
+        [
+          {
+            "node": "Notify Admin",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 0,
+  "updatedAt": "2024-01-01T00:00:00.000Z",
+  "versionId": "1"
+}
+

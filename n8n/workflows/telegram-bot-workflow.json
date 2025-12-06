@@ -1,0 +1,188 @@
+{
+  "name": "SmartFlow Telegram Bot Workflow",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "webhook-trigger",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [250, 300],
+      "webhookId": "telegram-commands"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.body.message.text }}",
+              "operation": "startsWith",
+              "value2": "/mywave"
+            }
+          ]
+        }
+      },
+      "id": "check-mywave",
+      "name": "Check /mywave",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [450, 300]
+    },
+    {
+      "parameters": {
+        "url": "http://localhost:8080/api/v1/telegram/mywave",
+        "authentication": "none",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "userId",
+              "value": "={{ $json.body.message.from.id }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "call-mywave-api",
+      "name": "Call MyWave API",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [650, 200]
+    },
+    {
+      "parameters": {
+        "url": "https://api.telegram.org/bot{{ $env.TELEGRAM_BOT_TOKEN }}/sendMessage",
+        "authentication": "none",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"chat_id\": {{ $json.body.message.chat.id }},\n  \"text\": \"🎵 Ваши рекомендации:\\n{{ $json.recommendations.map(r => r.title + ' - ' + r.artist).join('\\n') }}\"\n}",
+        "options": {}
+      },
+      "id": "send-telegram-response",
+      "name": "Send Telegram Response",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [850, 200]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.body.message.text }}",
+              "operation": "startsWith",
+              "value2": "/like"
+            }
+          ]
+        }
+      },
+      "id": "check-like",
+      "name": "Check /like",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [450, 400]
+    },
+    {
+      "parameters": {
+        "url": "http://localhost:8080/api/v1/telegram/like",
+        "authentication": "none",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"userId\": {{ $json.body.message.from.id }},\n  \"trackId\": {{ $json.body.message.text.split(' ')[1] }}\n}",
+        "options": {}
+      },
+      "id": "call-like-api",
+      "name": "Call Like API",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [650, 400]
+    },
+    {
+      "parameters": {
+        "url": "https://api.telegram.org/bot{{ $env.TELEGRAM_BOT_TOKEN }}/sendMessage",
+        "authentication": "none",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"chat_id\": {{ $json.body.message.chat.id }},\n  \"text\": \"✅ Трек добавлен в избранное!\"\n}",
+        "options": {}
+      },
+      "id": "send-like-response",
+      "name": "Send Like Response",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [850, 400]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Check /mywave",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Check /like",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check /mywave": {
+      "main": [
+        [
+          {
+            "node": "Call MyWave API",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call MyWave API": {
+      "main": [
+        [
+          {
+            "node": "Send Telegram Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check /like": {
+      "main": [
+        [
+          {
+            "node": "Call Like API",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call Like API": {
+      "main": [
+        [
+          {
+            "node": "Send Like Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 0,
+  "updatedAt": "2024-01-01T00:00:00.000Z",
+  "versionId": "1"
+}
+

@@ -1,0 +1,269 @@
+{
+  "name": "SmartFlow Telegram Bot",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "telegram-trigger",
+      "name": "Telegram Trigger",
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1,
+      "position": [250, 300],
+      "credentials": {
+        "telegramApi": {
+          "id": "telegram-credentials",
+          "name": "Telegram Bot Token"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "command": "=/mywave",
+        "additionalFields": {}
+      },
+      "id": "if-command-mywave",
+      "name": "If Command /mywave",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [450, 200]
+    },
+    {
+      "parameters": {
+        "url": "=http://localhost:8080/api/v1/wave/recommendations",
+        "options": {
+          "queryParameters": {
+            "parameters": [
+              {
+                "name": "userId",
+                "value": "={{ $json.message.from.id }}"
+              },
+              {
+                "name": "limit",
+                "value": "10"
+              }
+            ]
+          }
+        }
+      },
+      "id": "get-recommendations",
+      "name": "Get Recommendations",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 1,
+      "position": [650, 200]
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $json.message.chat.id }}",
+        "text": "=🎵 Ваша волна рекомендаций:\n\n{{ $json.recommendations.map(r => r.artist + ' - ' + r.title).join('\\n') }}"
+      },
+      "id": "send-mywave-response",
+      "name": "Send Response",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1,
+      "position": [850, 200],
+      "credentials": {
+        "telegramApi": {
+          "id": "telegram-credentials",
+          "name": "Telegram Bot Token"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "command": "=/like",
+        "additionalFields": {}
+      },
+      "id": "if-command-like",
+      "name": "If Command /like",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [450, 400]
+    },
+    {
+      "parameters": {
+        "url": "=http://localhost:8080/api/v1/telegram/webhook",
+        "method": "POST",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "command",
+              "value": "=/like"
+            },
+            {
+              "name": "userId",
+              "value": "={{ $json.message.from.id }}"
+            },
+            {
+              "name": "trackId",
+              "value": "={{ $json.message.text.split(' ')[1] }}"
+            }
+          ]
+        }
+      },
+      "id": "like-track",
+      "name": "Like Track",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 1,
+      "position": [650, 400]
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $json.message.chat.id }}",
+        "text": "={{ $('Like Track').item.json.text }}"
+      },
+      "id": "send-like-response",
+      "name": "Send Like Response",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1,
+      "position": [850, 400],
+      "credentials": {
+        "telegramApi": {
+          "id": "telegram-credentials",
+          "name": "Telegram Bot Token"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "command": "=/history",
+        "additionalFields": {}
+      },
+      "id": "if-command-history",
+      "name": "If Command /history",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [450, 600]
+    },
+    {
+      "parameters": {
+        "url": "=http://localhost:8080/api/v1/telegram/webhook",
+        "method": "POST",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "command",
+              "value": "=/history"
+            },
+            {
+              "name": "userId",
+              "value": "={{ $json.message.from.id }}"
+            }
+          ]
+        }
+      },
+      "id": "get-history",
+      "name": "Get History",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 1,
+      "position": [650, 600]
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $json.message.chat.id }}",
+        "text": "={{ $('Get History').item.json.text }}"
+      },
+      "id": "send-history-response",
+      "name": "Send History Response",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1,
+      "position": [850, 600],
+      "credentials": {
+        "telegramApi": {
+          "id": "telegram-credentials",
+          "name": "Telegram Bot Token"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "If Command /mywave",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "If Command /like",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "If Command /history",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If Command /mywave": {
+      "main": [
+        [
+          {
+            "node": "Get Recommendations",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Recommendations": {
+      "main": [
+        [
+          {
+            "node": "Send Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If Command /like": {
+      "main": [
+        [
+          {
+            "node": "Like Track",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Like Track": {
+      "main": [
+        [
+          {
+            "node": "Send Like Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If Command /history": {
+      "main": [
+        [
+          {
+            "node": "Get History",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get History": {
+      "main": [
+        [
+          {
+            "node": "Send History Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}
+

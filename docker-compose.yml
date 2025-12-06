@@ -1,0 +1,61 @@
+version: '3.8'
+
+services:
+  # n8n workflow automation
+  n8n:
+    image: n8nio/n8n:latest
+    container_name: smartflow-n8n
+    restart: unless-stopped
+    ports:
+      - "5678:5678"
+    environment:
+      - N8N_BASIC_AUTH_ACTIVE=true
+      - N8N_BASIC_AUTH_USER=admin
+      - N8N_BASIC_AUTH_PASSWORD=smartflow2024
+      - N8N_HOST=45.155.164.190
+      - N8N_PROTOCOL=http
+      - WEBHOOK_URL=http://45.155.164.190:5678/
+      - GENERIC_TIMEZONE=Europe/Moscow
+    volumes:
+      - ~/.n8n:/home/node/.n8n
+      - ./n8n/workflows:/data/workflows
+    networks:
+      - smartflow-network
+
+  # PostgreSQL для SmartFlow (опционально, если не используется внешний)
+  postgres:
+    image: postgres:15-alpine
+    container_name: smartflow-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: smartflow_db
+      POSTGRES_USER: smartflow_user
+      POSTGRES_PASSWORD: 22o7rL5PGWN4
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - smartflow-network
+
+  # Redis для кэширования (опционально, если не используется внешний)
+  redis:
+    image: redis:7-alpine
+    container_name: smartflow-redis
+    restart: unless-stopped
+    command: redis-server --requirepass ВАШ_ПАРОЛЬ_REDIS
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - smartflow-network
+
+networks:
+  smartflow-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  redis_data:
+

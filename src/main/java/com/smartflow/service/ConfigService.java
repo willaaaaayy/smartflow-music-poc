@@ -62,5 +62,44 @@ public class ConfigService {
     public Map<String, Object> getConfig() {
         return config;
     }
+
+    /**
+     * Обновление конфигурации в runtime
+     * 
+     * Позволяет n8n и другим внешним системам изменять параметры рекомендаций
+     * без перезапуска приложения. Новая конфигурация применяется сразу.
+     * 
+     * @param newConfig новая конфигурация
+     * @throws IllegalArgumentException если конфигурация невалидна
+     */
+    public synchronized void updateConfig(Map<String, Object> newConfig) {
+        // Валидация обязательных полей
+        if (newConfig == null) {
+            throw new IllegalArgumentException("Configuration cannot be null");
+        }
+        
+        if (!newConfig.containsKey("genreBoost") || 
+            !newConfig.containsKey("popularityWeight") ||
+            !newConfig.containsKey("randomFactor") ||
+            !newConfig.containsKey("fallbackLimit")) {
+            throw new IllegalArgumentException("Configuration must contain all required fields");
+        }
+        
+        // Обновляем конфигурацию
+        this.config = newConfig;
+    }
+
+    /**
+     * Обновление конкретного параметра конфигурации
+     * 
+     * @param key ключ параметра (например, "popularityWeight")
+     * @param value новое значение
+     */
+    public synchronized void updateConfigParameter(String key, Object value) {
+        if (config == null) {
+            loadConfig();
+        }
+        config.put(key, value);
+    }
 }
 
