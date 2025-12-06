@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{admin/layout :: layout(~{::content}, 'Мониторинг')}">
+<body>
+    <div th:fragment="content">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1><i class="bi bi-graph-up me-2"></i>Мониторинг системы</h1>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5><i class="bi bi-activity me-2"></i>Статус системы</h5>
+                    </div>
+                    <div class="card-body">
+                        <p><strong>База данных:</strong> 
+                            <span class="badge bg-success">Подключена</span>
+                        </p>
+                        <p><strong>Redis:</strong> 
+                            <span class="badge bg-success">Подключен</span>
+                        </p>
+                        <p><strong>Приложение:</strong> 
+                            <span class="badge bg-success">Работает</span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5><i class="bi bi-bar-chart me-2"></i>Статистика рекомендаций</h5>
+                    </div>
+                    <div class="card-body">
+                        <p><strong>Всего рекомендаций:</strong> 
+                            <span th:text="${recommendationsCount ?: 0}">0</span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="bi bi-link-45deg me-2"></i>Полезные ссылки</h5>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a href="/actuator/health" target="_blank" class="btn btn-outline-primary">
+                        <i class="bi bi-heart-pulse me-2"></i>Health Check
+                    </a>
+                    <a href="/actuator/metrics" target="_blank" class="btn btn-outline-info">
+                        <i class="bi bi-speedometer me-2"></i>Metrics
+                    </a>
+                    <a href="/actuator/prometheus" target="_blank" class="btn btn-outline-success">
+                        <i class="bi bi-graph-up-arrow me-2"></i>Prometheus Metrics
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

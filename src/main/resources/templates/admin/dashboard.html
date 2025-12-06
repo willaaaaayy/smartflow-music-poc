@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{admin/layout :: layout(~{::content}, 'Дашборд')}">
+<body>
+    <div th:fragment="content">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1><i class="bi bi-speedometer2 me-2"></i>Дашборд</h1>
+        </div>
+
+        <!-- Статистика -->
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="card text-white bg-primary">
+                    <div class="card-body">
+                        <h5 class="card-title"><i class="bi bi-people me-2"></i>Пользователи</h5>
+                        <h2 th:text="${totalUsers}">0</h2>
+                        <small>Активных: <span th:text="${activeUsers}">0</span></small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-white bg-success">
+                    <div class="card-body">
+                        <h5 class="card-title"><i class="bi bi-music-note-list me-2"></i>Треки</h5>
+                        <h2 th:text="${totalTracks}">0</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-white bg-info">
+                    <div class="card-body">
+                        <h5 class="card-title"><i class="bi bi-tags me-2"></i>Жанры</h5>
+                        <h2 th:text="${totalGenres}">0</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-white bg-warning">
+                    <div class="card-body">
+                        <h5 class="card-title"><i class="bi bi-gear me-2"></i>Конфигурация</h5>
+                        <h6>Активна</h6>
+                        <a href="/admin/config" class="text-white text-decoration-none">Настроить →</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Быстрые действия -->
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5><i class="bi bi-lightning-charge me-2"></i>Быстрые действия</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-grid gap-2">
+                            <a href="/admin/config" class="btn btn-primary">
+                                <i class="bi bi-gear me-2"></i>Настроить рекомендации
+                            </a>
+                            <a href="/admin/tracks" class="btn btn-success">
+                                <i class="bi bi-plus-circle me-2"></i>Управление треками
+                            </a>
+                            <a href="/admin/users" class="btn btn-info">
+                                <i class="bi bi-people me-2"></i>Управление пользователями
+                            </a>
+                            <a href="/admin/monitoring" class="btn btn-warning">
+                                <i class="bi bi-graph-up me-2"></i>Мониторинг системы
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5><i class="bi bi-info-circle me-2"></i>Текущая конфигурация</h5>
+                    </div>
+                    <div class="card-body">
+                        <div th:if="${config}">
+                            <p><strong>Popularity Weight:</strong> <span th:text="${config.popularityWeight}">1.2</span></p>
+                            <p><strong>Random Factor:</strong> <span th:text="${config.randomFactor}">0.15</span></p>
+                            <p><strong>Fallback Limit:</strong> <span th:text="${config.fallbackLimit}">15</span></p>
+                            <a href="/admin/config" class="btn btn-sm btn-outline-primary">Изменить</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

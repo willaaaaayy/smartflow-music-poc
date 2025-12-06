@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{admin/layout :: layout(~{::content}, 'Треки')}">
+<body>
+    <div th:fragment="content">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1><i class="bi bi-music-note-list me-2"></i>Треки</h1>
+            <span class="badge bg-primary" th:text="'Всего: ' + ${totalElements}">Всего: 0</span>
+        </div>
+
+        <!-- Поиск -->
+        <div class="card mb-3">
+            <div class="card-body">
+                <form method="get" action="/admin/tracks">
+                    <div class="row">
+                        <div class="col-md-10">
+                            <input type="text" class="form-control" name="search" 
+                                   th:value="${search}" placeholder="Поиск по названию, исполнителю, альбому...">
+                        </div>
+                        <div class="col-md-2">
+                            <button type="submit" class="btn btn-primary w-100">
+                                <i class="bi bi-search me-2"></i>Найти
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Название</th>
+                                <th>Исполнитель</th>
+                                <th>Альбом</th>
+                                <th>Длительность</th>
+                                <th>Прослушиваний</th>
+                                <th>Жанры</th>
+                                <th>Статус</th>
+                                <th>Действия</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="track : ${tracks}">
+                                <td th:text="${track.id}">1</td>
+                                <td th:text="${track.title}">Track Title</td>
+                                <td th:text="${track.artist}">Artist</td>
+                                <td th:text="${track.album ?: '-'}">-</td>
+                                <td th:text="${#temporals.format(track.duration, 'mm:ss')}">3:45</td>
+                                <td>
+                                    <span class="badge bg-info" th:text="${track.playCount}">0</span>
+                                </td>
+                                <td>
+                                    <span th:each="genre, iterStat : ${track.genres}" 
+                                          class="badge bg-secondary me-1"
+                                          th:text="${genre.name}">Genre</span>
+                                </td>
+                                <td>
+                                    <span class="badge" 
+                                          th:classappend="${track.isAvailable} ? 'bg-success' : 'bg-danger'"
+                                          th:text="${track.isAvailable} ? 'Доступен' : 'Недоступен'">Доступен</span>
+                                </td>
+                                <td>
+                                    <a th:href="@{/admin/tracks/{id}(id=${track.id})}" class="btn btn-sm btn-primary">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Пагинация -->
+                <nav th:if="${totalPages > 1}">
+                    <ul class="pagination justify-content-center">
+                        <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled'">
+                            <a class="page-link" th:href="@{/admin/tracks(page=${currentPage - 1}, search=${search})}">Предыдущая</a>
+                        </li>
+                        <li class="page-item" th:each="i : ${#numbers.sequence(0, totalPages - 1)}" 
+                            th:classappend="${i == currentPage} ? 'active'">
+                            <a class="page-link" th:href="@{/admin/tracks(page=${i}, search=${search})}" th:text="${i + 1}">1</a>
+                        </li>
+                        <li class="page-item" th:classappend="${currentPage == totalPages - 1} ? 'disabled'">
+                            <a class="page-link" th:href="@{/admin/tracks(page=${currentPage + 1}, search=${search})}">Следующая</a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{admin/layout :: layout(~{::content}, 'Жанры')}">
+<body>
+    <div th:fragment="content">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1><i class="bi bi-tags me-2"></i>Жанры</h1>
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addGenreModal">
+                <i class="bi bi-plus-circle me-2"></i>Добавить жанр
+            </button>
+        </div>
+
+        <div class="card">
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Название</th>
+                                <th>Описание</th>
+                                <th>Дата создания</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="genre : ${genres}">
+                                <td th:text="${genre.id}">1</td>
+                                <td><strong th:text="${genre.name}">Rock</strong></td>
+                                <td th:text="${genre.description ?: '-'}">-</td>
+                                <td th:text="${#temporals.format(genre.createdAt, 'dd.MM.yyyy HH:mm')}">01.01.2024</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal для добавления жанра -->
+        <div class="modal fade" id="addGenreModal" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Добавить жанр</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="addGenreForm">
+                            <div class="mb-3">
+                                <label for="genreName" class="form-label">Название</label>
+                                <input type="text" class="form-control" id="genreName" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="genreDescription" class="form-label">Описание</label>
+                                <textarea class="form-control" id="genreDescription" rows="3"></textarea>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                        <button type="button" class="btn btn-primary" onclick="addGenre()">Добавить</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function addGenre() {
+            const name = document.getElementById('genreName').value;
+            const description = document.getElementById('genreDescription').value;
+
+            fetch('/admin/genres', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ name, description })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    location.reload();
+                } else {
+                    alert('Ошибка: ' + data.message);
+                }
+            })
+            .catch(error => {
+                alert('Ошибка: ' + error.message);
+            });
+        }
+    </script>
+</body>
+</html>

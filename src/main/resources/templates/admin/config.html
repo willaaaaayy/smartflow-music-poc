@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{admin/layout :: layout(~{::content}, 'Конфигурация рекомендаций')}">
+<body>
+    <div th:fragment="content">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1><i class="bi bi-gear me-2"></i>Конфигурация рекомендаций</h1>
+        </div>
+
+        <div class="card">
+            <div class="card-body">
+                <form id="configForm">
+                    <h5 class="mb-3">Genre Boost (коэффициенты усиления жанров)</h5>
+                    <div class="row mb-4" id="genreBoostContainer">
+                        <!-- Динамически заполняется через JavaScript -->
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="popularityWeight" class="form-label">Popularity Weight</label>
+                            <input type="number" step="0.1" class="form-control" id="popularityWeight" 
+                                   th:value="${config?.popularityWeight ?: 1.2}" required>
+                            <small class="text-muted">Вес популярности треков в алгоритме</small>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="randomFactor" class="form-label">Random Factor</label>
+                            <input type="number" step="0.01" class="form-control" id="randomFactor" 
+                                   th:value="${config?.randomFactor ?: 0.15}" required>
+                            <small class="text-muted">Фактор случайности для разнообразия</small>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="fallbackLimit" class="form-label">Fallback Limit</label>
+                            <input type="number" class="form-control" id="fallbackLimit" 
+                                   th:value="${config?.fallbackLimit ?: 15}" required>
+                            <small class="text-muted">Лимит рекомендаций по умолчанию</small>
+                        </div>
+                    </div>
+
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle me-2"></i>
+                        Изменения применяются сразу без перезапуска приложения
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-save me-2"></i>Сохранить конфигурацию
+                    </button>
+                    <button type="button" class="btn btn-secondary" onclick="resetForm()">
+                        <i class="bi bi-arrow-counterclockwise me-2"></i>Сбросить
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Загружаем текущую конфигурацию
+        const config = /*[[${config}]]*/ {};
+        const genreBoost = config.genreBoost || {};
+
+        // Заполняем Genre Boost поля
+        const genreBoostContainer = document.getElementById('genreBoostContainer');
+        const genres = ['rock', 'pop', 'jazz', 'electronic', 'hiphop'];
+        
+        genres.forEach(genre => {
+            const col = document.createElement('div');
+            col.className = 'col-md-4 mb-3';
+            col.innerHTML = `
+                <label for="genre_${genre}" class="form-label">${genre.charAt(0).toUpperCase() + genre.slice(1)}</label>
+                <input type="number" step="0.1" class="form-control" id="genre_${genre}" 
+                       name="genreBoost.${genre}" value="${genreBoost[genre] || 1.0}" required>
+            `;
+            genreBoostContainer.appendChild(col);
+        });
+
+        // Обработка формы
+        document.getElementById('configForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = {
+                genreBoost: {},
+                popularityWeight: parseFloat(document.getElementById('popularityWeight').value),
+                randomFactor: parseFloat(document.getElementById('randomFactor').value),
+                fallbackLimit: parseInt(document.getElementById('fallbackLimit').value)
+            };
+
+            genres.forEach(genre => {
+                formData.genreBoost[genre] = parseFloat(document.getElementById(`genre_${genre}`).value);
+            });
+
+            try {
+                const response = await fetch('/admin/config/update', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                const result = await response.json();
+                
+                if (result.status === 'success') {
+                    alert('Конфигурация успешно обновлена!');
+                    location.reload();
+                } else {
+                    alert('Ошибка: ' + result.message);
+                }
+            } catch (error) {
+                alert('Ошибка при сохранении: ' + error.message);
+            }
+        });
+
+        function resetForm() {
+            location.reload();
+        }
+    </script>
+</body>
+</html>
