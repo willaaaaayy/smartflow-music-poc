@@ -77,6 +77,14 @@ spring:
       indent-output: false
     default-property-inclusion: non_null
 
+  # Настройки Thymeleaf
+  thymeleaf:
+    prefix: classpath:/templates/
+    suffix: .html
+    mode: HTML
+    encoding: UTF-8
+    cache: false # Отключаем кэш для разработки
+
 # Настройки Telegram бота
 telegram:
   bot:
@@ -88,15 +96,6 @@ telegram:
 admin:
   username: ${ADMIN_USERNAME:admin}
   password: ${ADMIN_PASSWORD:admin}
-
-# Настройки Thymeleaf
-spring:
-  thymeleaf:
-    prefix: classpath:/templates/
-    suffix: .html
-    mode: HTML
-    encoding: UTF-8
-    cache: false # Отключаем кэш для разработки
 
 # Настройки сервера
 server:
