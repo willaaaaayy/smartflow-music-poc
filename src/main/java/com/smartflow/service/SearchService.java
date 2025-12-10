@@ -2,10 +2,11 @@ package com.smartflow.service;
 
 import com.smartflow.dto.SearchResponseDTO;
 import com.smartflow.dto.TrackDTO;
+import com.smartflow.model.Genre;
 import com.smartflow.model.Track;
 import com.smartflow.repository.TrackRepository;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -22,13 +23,17 @@ import java.util.stream.Collectors;
  * Реализует полнотекстовый поиск по трекам с поддержкой пагинации.
  * Использует кэширование для оптимизации производительности при частых запросах.
  */
-@Slf4j
 @Service
-@RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class SearchService {
 
+    private static final Logger log = LoggerFactory.getLogger(SearchService.class);
+
     private final TrackRepository trackRepository;
+
+    public SearchService(TrackRepository trackRepository) {
+        this.trackRepository = trackRepository;
+    }
 
     /**
      * Поиск треков по запросу
@@ -58,13 +63,13 @@ public class SearchService {
 
         log.info("Найдено {} треков по запросу '{}'", trackPage.getTotalElements(), query);
 
-        return SearchResponseDTO.builder()
-                .tracks(tracks)
-                .totalElements(trackPage.getTotalElements())
-                .currentPage(trackPage.getNumber())
-                .totalPages(trackPage.getTotalPages())
-                .pageSize(trackPage.getSize())
-                .build();
+        return new SearchResponseDTO(
+                tracks,
+                trackPage.getTotalElements(),
+                trackPage.getNumber(),
+                trackPage.getTotalPages(),
+                trackPage.getSize()
+        );
     }
 
     /**
@@ -86,13 +91,13 @@ public class SearchService {
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
 
-        return SearchResponseDTO.builder()
-                .tracks(tracks)
-                .totalElements(trackPage.getTotalElements())
-                .currentPage(trackPage.getNumber())
-                .totalPages(trackPage.getTotalPages())
-                .pageSize(trackPage.getSize())
-                .build();
+        return new SearchResponseDTO(
+                tracks,
+                trackPage.getTotalElements(),
+                trackPage.getNumber(),
+                trackPage.getTotalPages(),
+                trackPage.getSize()
+        );
     }
 
     /**
@@ -102,19 +107,19 @@ public class SearchService {
      * @return DTO трека
      */
     private TrackDTO convertToDTO(Track track) {
-        return TrackDTO.builder()
-                .id(track.getId())
-                .title(track.getTitle())
-                .artist(track.getArtist())
-                .album(track.getAlbum())
-                .duration(track.getDuration())
-                .audioUrl(track.getAudioUrl())
-                .coverUrl(track.getCoverUrl())
-                .genres(track.getGenres().stream()
-                        .map(genre -> genre.getName())
-                        .collect(Collectors.toSet()))
-                .playCount(track.getPlayCount())
-                .build();
+        return new TrackDTO(
+                track.getId(),
+                track.getTitle(),
+                track.getArtist(),
+                track.getAlbum(),
+                track.getDuration(),
+                track.getAudioUrl(),
+                track.getCoverUrl(),
+                track.getGenres().stream()
+                        .map(Genre::getName)
+                        .collect(Collectors.toSet()),
+                track.getPlayCount()
+        );
     }
 }
 

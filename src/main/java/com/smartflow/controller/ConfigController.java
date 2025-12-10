@@ -1,8 +1,8 @@
 package com.smartflow.controller;
 
 import com.smartflow.service.ConfigService;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,13 +14,17 @@ import java.util.Map;
  * Позволяет n8n обновлять параметры алгоритма рекомендаций без перезагрузки приложения.
  * Используется для динамического управления бизнес-логикой через low-code платформу.
  */
-@Slf4j
 @RestController
 @RequestMapping("/api/v1/config")
-@RequiredArgsConstructor
 public class ConfigController {
 
+    private static final Logger log = LoggerFactory.getLogger(ConfigController.class);
+
     private final ConfigService configService;
+
+    public ConfigController(ConfigService configService) {
+        this.configService = configService;
+    }
 
     /**
      * Получение текущей конфигурации рекомендаций

@@ -1,10 +1,5 @@
 package com.smartflow.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
 import java.util.Map;
 
 /**
@@ -13,10 +8,6 @@ import java.util.Map;
  * Используется n8n и другими внешними системами для динамического
  * изменения параметров алгоритма рекомендаций через REST API.
  */
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
 public class ConfigUpdateDTO {
 
     /**
@@ -43,5 +34,59 @@ public class ConfigUpdateDTO {
      * Лимит рекомендаций по умолчанию
      */
     private Integer fallbackLimit;
+
+    public ConfigUpdateDTO() {
+    }
+
+    public ConfigUpdateDTO(Map<String, Double> genreBoost, Double popularityWeight, Double recencyWeight,
+                           Double randomFactor, Integer fallbackLimit) {
+        this.genreBoost = genreBoost;
+        this.popularityWeight = popularityWeight;
+        this.recencyWeight = recencyWeight;
+        this.randomFactor = randomFactor;
+        this.fallbackLimit = fallbackLimit;
+    }
+
+    // getters and setters
+
+    public Map<String, Double> getGenreBoost() {
+        return genreBoost;
+    }
+
+    public void setGenreBoost(Map<String, Double> genreBoost) {
+        this.genreBoost = genreBoost;
+    }
+
+    public Double getPopularityWeight() {
+        return popularityWeight;
+    }
+
+    public void setPopularityWeight(Double popularityWeight) {
+        this.popularityWeight = popularityWeight;
+    }
+
+    public Double getRecencyWeight() {
+        return recencyWeight;
+    }
+
+    public void setRecencyWeight(Double recencyWeight) {
+        this.recencyWeight = recencyWeight;
+    }
+
+    public Double getRandomFactor() {
+        return randomFactor;
+    }
+
+    public void setRandomFactor(Double randomFactor) {
+        this.randomFactor = randomFactor;
+    }
+
+    public Integer getFallbackLimit() {
+        return fallbackLimit;
+    }
+
+    public void setFallbackLimit(Integer fallbackLimit) {
+        this.fallbackLimit = fallbackLimit;
+    }
 }
 

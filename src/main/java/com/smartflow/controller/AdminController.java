@@ -11,8 +11,8 @@ import com.smartflow.repository.UserRepository;
 import com.smartflow.service.ConfigService;
 import com.smartflow.service.RecommendationService;
 import com.smartflow.service.SearchService;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -36,11 +36,11 @@ import java.util.stream.Collectors;
  * - Жанрами
  * - Мониторингом системы
  */
-@Slf4j
 @Controller
 @RequestMapping("/admin")
-@RequiredArgsConstructor
 public class AdminController {
+
+    private static final Logger log = LoggerFactory.getLogger(AdminController.class);
 
     private final ConfigService configService;
     private final UserRepository userRepository;
@@ -48,6 +48,20 @@ public class AdminController {
     private final GenreRepository genreRepository;
     private final RecommendationService recommendationService;
     private final SearchService searchService;
+
+    public AdminController(ConfigService configService,
+                          UserRepository userRepository,
+                          TrackRepository trackRepository,
+                          GenreRepository genreRepository,
+                          RecommendationService recommendationService,
+                          SearchService searchService) {
+        this.configService = configService;
+        this.userRepository = userRepository;
+        this.trackRepository = trackRepository;
+        this.genreRepository = genreRepository;
+        this.recommendationService = recommendationService;
+        this.searchService = searchService;
+    }
 
     /**
      * Главная страница админ-панели (Dashboard)
@@ -67,7 +81,7 @@ public class AdminController {
         model.addAttribute("totalTracks", totalTracks);
         model.addAttribute("totalGenres", totalGenres);
         model.addAttribute("config", configService.getConfig());
-
+        
         return "admin/dashboard";
     }
 
@@ -123,8 +137,8 @@ public class AdminController {
      */
     @GetMapping("/users")
     public String users(@RequestParam(defaultValue = "0") int page,
-                        @RequestParam(defaultValue = "20") int size,
-                        Model model) {
+            @RequestParam(defaultValue = "20") int size,
+            Model model) {
         Pageable pageable = PageRequest.of(page, size);
         Page<User> userPage = userRepository.findAll(pageable);
         
@@ -166,9 +180,9 @@ public class AdminController {
             }
             if (updates.containsKey("isActive")) {
                 user.setIsActive((Boolean) updates.get("isActive"));
-            }
-            
-            userRepository.save(user);
+        }
+        
+        userRepository.save(user);
             
             Map<String, Object> response = new HashMap<>();
             response.put("status", "success");
@@ -188,9 +202,9 @@ public class AdminController {
      */
     @GetMapping("/tracks")
     public String tracks(@RequestParam(defaultValue = "0") int page,
-                         @RequestParam(defaultValue = "20") int size,
-                         @RequestParam(required = false) String search,
-                         Model model) {
+            @RequestParam(defaultValue = "20") int size,
+            @RequestParam(required = false) String search,
+            Model model) {
         Pageable pageable = PageRequest.of(page, size);
         Page<Track> trackPage;
         
@@ -245,9 +259,9 @@ public class AdminController {
             }
             if (updates.containsKey("isAvailable")) {
                 track.setIsAvailable((Boolean) updates.get("isAvailable"));
-            }
-            
-            trackRepository.save(track);
+        }
+        
+        trackRepository.save(track);
             
             Map<String, Object> response = new HashMap<>();
             response.put("status", "success");
@@ -279,12 +293,11 @@ public class AdminController {
     @ResponseBody
     public ResponseEntity<Map<String, Object>> createGenre(@RequestBody Map<String, String> data) {
         try {
-            Genre genre = Genre.builder()
-                    .name(data.get("name"))
-                    .description(data.get("description"))
-                    .build();
-            
-            genreRepository.save(genre);
+        Genre genre = new Genre();
+        genre.setName(data.get("name"));
+        genre.setDescription(data.get("description"));
+        
+        genreRepository.save(genre);
             
             Map<String, Object> response = new HashMap<>();
             response.put("status", "success");

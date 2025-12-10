@@ -8,8 +8,8 @@ import com.smartflow.model.User;
 import com.smartflow.repository.GenreRepository;
 import com.smartflow.repository.TrackRepository;
 import com.smartflow.repository.UserRepository;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -30,16 +30,24 @@ import java.util.stream.Collectors;
  * Параметры алгоритма настраиваются через recommendation_config.json,
  * что позволяет изменять поведение без перекомпиляции кода.
  */
-@Slf4j
 @Service
-@RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class RecommendationService {
+
+    private static final Logger log = LoggerFactory.getLogger(RecommendationService.class);
 
     private final UserRepository userRepository;
     private final TrackRepository trackRepository;
     private final GenreRepository genreRepository;
     private final ConfigService configService;
+
+    public RecommendationService(UserRepository userRepository, TrackRepository trackRepository,
+                                 GenreRepository genreRepository, ConfigService configService) {
+        this.userRepository = userRepository;
+        this.trackRepository = trackRepository;
+        this.genreRepository = genreRepository;
+        this.configService = configService;
+    }
 
     /**
      * Генерация рекомендаций для пользователя (Wave API)
@@ -104,11 +112,11 @@ public class RecommendationService {
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
 
-        return WaveResponseDTO.builder()
-                .recommendations(trackDTOs)
-                .totalRecommendations(trackDTOs.size())
-                .source(preferredGenres.isEmpty() ? "popular" : "genres")
-                .build();
+        WaveResponseDTO response = new WaveResponseDTO();
+        response.setRecommendations(trackDTOs);
+        response.setTotalRecommendations(trackDTOs.size());
+        response.setSource(preferredGenres.isEmpty() ? "popular" : "genres");
+        return response;
     }
 
     /**
@@ -227,11 +235,11 @@ public class RecommendationService {
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
 
-        return WaveResponseDTO.builder()
-                .recommendations(trackDTOs)
-                .totalRecommendations(trackDTOs.size())
-                .source("popular")
-                .build();
+        WaveResponseDTO response = new WaveResponseDTO();
+        response.setRecommendations(trackDTOs);
+        response.setTotalRecommendations(trackDTOs.size());
+        response.setSource("popular");
+        return response;
     }
 
     /**
@@ -241,19 +249,19 @@ public class RecommendationService {
      * @return DTO трека
      */
     private TrackDTO convertToDTO(Track track) {
-        return TrackDTO.builder()
-                .id(track.getId())
-                .title(track.getTitle())
-                .artist(track.getArtist())
-                .album(track.getAlbum())
-                .duration(track.getDuration())
-                .audioUrl(track.getAudioUrl())
-                .coverUrl(track.getCoverUrl())
-                .genres(track.getGenres().stream()
-                        .map(Genre::getName)
-                        .collect(Collectors.toSet()))
-                .playCount(track.getPlayCount())
-                .build();
+        TrackDTO dto = new TrackDTO();
+        dto.setId(track.getId());
+        dto.setTitle(track.getTitle());
+        dto.setArtist(track.getArtist());
+        dto.setAlbum(track.getAlbum());
+        dto.setDuration(track.getDuration());
+        dto.setAudioUrl(track.getAudioUrl());
+        dto.setCoverUrl(track.getCoverUrl());
+        dto.setGenres(track.getGenres().stream()
+                .map(Genre::getName)
+                .collect(Collectors.toSet()));
+        dto.setPlayCount(track.getPlayCount());
+        return dto;
     }
 }
 

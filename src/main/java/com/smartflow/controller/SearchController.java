@@ -2,8 +2,8 @@ package com.smartflow.controller;
 
 import com.smartflow.dto.SearchResponseDTO;
 import com.smartflow.service.SearchService;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,13 +13,17 @@ import org.springframework.web.bind.annotation.*;
  * Предоставляет эндпоинты для полнотекстового поиска по трекам
  * с поддержкой пагинации и фильтрации по жанрам.
  */
-@Slf4j
 @RestController
 @RequestMapping("/api/v1/search")
-@RequiredArgsConstructor
 public class SearchController {
 
+    private static final Logger log = LoggerFactory.getLogger(SearchController.class);
+
     private final SearchService searchService;
+
+    public SearchController(SearchService searchService) {
+        this.searchService = searchService;
+    }
 
     /**
      * Поиск треков по запросу

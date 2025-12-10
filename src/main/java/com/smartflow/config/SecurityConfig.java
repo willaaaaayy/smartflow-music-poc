@@ -41,9 +41,11 @@ public class SecurityConfig {
         http
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/admin/**").authenticated()
+                .requestMatchers("/h2-console/**").permitAll() // H2 Console для локальной разработки
                 .requestMatchers("/api/**", "/actuator/**", "/css/**", "/js/**", "/images/**").permitAll()
                 .anyRequest().permitAll()
             )
+            .headers(headers -> headers.frameOptions(frameOptions -> frameOptions.disable())) // Для H2 Console
             .formLogin(form -> form
                 .loginPage("/admin/login")
                 .defaultSuccessUrl("/admin/dashboard", true)
@@ -70,8 +72,8 @@ public class SecurityConfig {
      */
     @Bean
     public UserDetailsService userDetailsService() {
-        UserDetails admin = User.builder()
-                .username(adminUsername)
+        UserDetails admin = org.springframework.security.core.userdetails.User
+                .withUsername(adminUsername)
                 .password(passwordEncoder().encode(adminPassword))
                 .roles("ADMIN")
                 .build();

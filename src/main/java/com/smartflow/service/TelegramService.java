@@ -2,8 +2,8 @@ package com.smartflow.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
@@ -19,13 +19,18 @@ import java.util.Map;
  * Обеспечивает отправку сообщений, обработку команд и интеграцию
  * с Telegram ботом для управления рекомендациями через чат.
  */
-@Slf4j
 @Service
-@RequiredArgsConstructor
 public class TelegramService {
+
+    private static final Logger log = LoggerFactory.getLogger(TelegramService.class);
 
     private final WebClient.Builder webClientBuilder;
     private final ObjectMapper objectMapper;
+
+    public TelegramService(WebClient.Builder webClientBuilder, ObjectMapper objectMapper) {
+        this.webClientBuilder = webClientBuilder;
+        this.objectMapper = objectMapper;
+    }
 
     @Value("${telegram.bot.token:}")
     private String botToken;

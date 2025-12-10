@@ -79,7 +79,7 @@
                         <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled'">
                             <a class="page-link" th:href="@{/admin/tracks(page=${currentPage - 1}, search=${search})}">Предыдущая</a>
                         </li>
-                        <li class="page-item" th:each="i : ${#numbers.sequence(0, totalPages - 1)}" 
+                        <li class="page-item" th:each="i : ${#numbers.sequence(0, totalPages - 1)}"
                             th:classappend="${i == currentPage} ? 'active'">
                             <a class="page-link" th:href="@{/admin/tracks(page=${i}, search=${search})}" th:text="${i + 1}">1</a>
                         </li>

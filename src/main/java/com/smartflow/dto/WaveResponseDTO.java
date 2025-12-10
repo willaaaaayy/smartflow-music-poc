@@ -1,10 +1,5 @@
 package com.smartflow.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
 import java.util.List;
 
 /**
@@ -13,10 +8,6 @@ import java.util.List;
  * Содержит персонализированный список рекомендованных треков
  * для пользователя на основе его предпочтений и истории.
  */
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
 public class WaveResponseDTO {
 
     /**
@@ -33,5 +24,40 @@ public class WaveResponseDTO {
      * Описание источника рекомендаций (для отладки)
      */
     private String source;
+
+    public WaveResponseDTO() {
+    }
+
+    public WaveResponseDTO(List<TrackDTO> recommendations, Integer totalRecommendations, String source) {
+        this.recommendations = recommendations;
+        this.totalRecommendations = totalRecommendations;
+        this.source = source;
+    }
+
+    // getters and setters
+
+    public List<TrackDTO> getRecommendations() {
+        return recommendations;
+    }
+
+    public void setRecommendations(List<TrackDTO> recommendations) {
+        this.recommendations = recommendations;
+    }
+
+    public Integer getTotalRecommendations() {
+        return totalRecommendations;
+    }
+
+    public void setTotalRecommendations(Integer totalRecommendations) {
+        this.totalRecommendations = totalRecommendations;
+    }
+
+    public String getSource() {
+        return source;
+    }
+
+    public void setSource(String source) {
+        this.source = source;
+    }
 }
 

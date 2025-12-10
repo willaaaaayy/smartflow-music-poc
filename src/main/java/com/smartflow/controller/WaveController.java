@@ -2,8 +2,8 @@ package com.smartflow.controller;
 
 import com.smartflow.dto.WaveResponseDTO;
 import com.smartflow.service.RecommendationService;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,13 +13,17 @@ import org.springframework.web.bind.annotation.*;
  * Предоставляет эндпоинты для получения персонализированных рекомендаций
  * для пользователей на основе их предпочтений и истории прослушиваний.
  */
-@Slf4j
 @RestController
 @RequestMapping("/api/v1/wave")
-@RequiredArgsConstructor
 public class WaveController {
 
+    private static final Logger log = LoggerFactory.getLogger(WaveController.class);
+
     private final RecommendationService recommendationService;
+
+    public WaveController(RecommendationService recommendationService) {
+        this.recommendationService = recommendationService;
+    }
 
     /**
      * Получение персонализированных рекомендаций для пользователя

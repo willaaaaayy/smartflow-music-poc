@@ -6,8 +6,8 @@ import com.smartflow.model.User;
 import com.smartflow.repository.TrackRepository;
 import com.smartflow.repository.UserRepository;
 import com.smartflow.service.RecommendationService;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,15 +25,23 @@ import java.util.Optional;
  * 
  * Эти эндпоинты вызываются из n8n workflow при получении команд от пользователя.
  */
-@Slf4j
 @RestController
 @RequestMapping("/api/v1/telegram")
-@RequiredArgsConstructor
 public class TelegramController {
+
+    private static final Logger log = LoggerFactory.getLogger(TelegramController.class);
 
     private final RecommendationService recommendationService;
     private final UserRepository userRepository;
     private final TrackRepository trackRepository;
+
+    public TelegramController(RecommendationService recommendationService,
+                             UserRepository userRepository,
+                             TrackRepository trackRepository) {
+        this.recommendationService = recommendationService;
+        this.userRepository = userRepository;
+        this.trackRepository = trackRepository;
+    }
 
     /**
      * Webhook для получения команд от Telegram через n8n
