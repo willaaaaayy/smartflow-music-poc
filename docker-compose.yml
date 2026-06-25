@@ -10,11 +10,11 @@ services:
       - "5678:5678"
     environment:
       - N8N_BASIC_AUTH_ACTIVE=true
-      - N8N_BASIC_AUTH_USER=admin
-      - N8N_BASIC_AUTH_PASSWORD=smartflow2024
-      - N8N_HOST=45.155.164.190
-      - N8N_PROTOCOL=http
-      - WEBHOOK_URL=http://45.155.164.190:5678/
+      - N8N_BASIC_AUTH_USER=${N8N_USER:-admin}
+      - N8N_BASIC_AUTH_PASSWORD=${N8N_PASSWORD:-changeme}
+      - N8N_HOST=${SERVER_HOST:-localhost}
+      - N8N_PROTOCOL=${N8N_PROTOCOL:-http}
+      - WEBHOOK_URL=http://${SERVER_HOST:-localhost}:5678/
       - GENERIC_TIMEZONE=Europe/Moscow
     volumes:
       - ~/.n8n:/home/node/.n8n
@@ -30,7 +30,7 @@ services:
     environment:
       POSTGRES_DB: smartflow_db
       POSTGRES_USER: smartflow_user
-      POSTGRES_PASSWORD: 22o7rL5PGWN4
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-smartflow}
     ports:
       - "5432:5432"
     volumes:
@@ -43,7 +43,7 @@ services:
     image: redis:7-alpine
     container_name: smartflow-redis
     restart: unless-stopped
-    command: redis-server --requirepass ВАШ_ПАРОЛЬ_REDIS
+    command: redis-server --requirepass ${REDIS_PASSWORD:-changeme}
     ports:
       - "6379:6379"
     volumes:
